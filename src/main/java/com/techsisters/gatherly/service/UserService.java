@@ -6,6 +6,7 @@ import com.techsisters.gatherly.entity.User;
 import com.techsisters.gatherly.integration.airtable.AirtableService;
 import com.techsisters.gatherly.integration.airtable.response.Record;
 import com.techsisters.gatherly.repository.UserRepository;
+import com.techsisters.gatherly.util.UserUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,12 @@ public class UserService {
                 user = new User();
             }
             user = copyAirtableData(user, userRecord);
+            log.info("User data saved/updated in DB: {}", user.getId());
+
+            // generate OTP
+            otp = UserUtil.generate6DigitCode();
+            user.setOtp(otp);
+            user = userRepository.save(user);
 
         } else {
             log.info("User with email {} is not a Techsisters member", email);

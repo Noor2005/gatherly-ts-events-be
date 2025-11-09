@@ -18,7 +18,7 @@ import lombok.Setter;
 public class User extends AbstractAuditablePersistable {
 
     private String name;
-    private String code; // 6 digit code for verification
+    private int otp; // 6 digit code for verification
 
     @Column(unique = true, nullable = false)
     private String email;

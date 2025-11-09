@@ -1,7 +1,11 @@
-package com.techsisters.gatherly.integration;
+package com.techsisters.gatherly.integration.airtable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.techsisters.gatherly.integration.airtable.response.ListResponse;
+import com.techsisters.gatherly.integration.airtable.response.Record;
 
 import feign.Feign;
 import feign.Request.Options;
@@ -45,9 +49,32 @@ public class AirtableService {
 
     }
 
-    public String getList() {
+    public ListResponse getList() {
         log.info("Getting List from Airtable");
         return client.getList(apiKey, baseId, tableName);
+    }
+
+    // Validate email against Airtable records
+    public Record findByEmail(String email) {
+
+        Record user = null;
+        ListResponse response = getList();
+        if (response != null) {
+
+            if (!response.getRecords().isEmpty()) {
+
+                for (Record obj : response.getRecords()) {
+                    if (obj.getFields().getEmail() != null
+                            && StringUtils.equalsIgnoreCase(obj.getFields().getEmail(), email)) {
+                        user = obj;
+                    }
+
+                }
+            }
+
+        }
+
+        return user;
     }
 
 }

@@ -28,26 +28,35 @@ public class UserService {
 
         Integer otp = null;
 
-        Record userRecord = airtableService.findByEmail(email);
-        if (userRecord != null) {
-            log.info("User with email {} is a Techsisters member", email);
+        User user = findByEmail(email);
+        if (user != null) {
 
-            // create/update user in DB
-            User user = findByEmail(email);
-            if (user == null) {
-                user = new User();
-            }
-            user = copyAirtableData(user, userRecord);
-            log.info("User data saved/updated in DB: {}", user.getId());
-
-            // generate OTP
+            // generate OTP and send email
             otp = UserUtil.generate6DigitCode();
             user.setOtp(otp);
-            user = userRepository.save(user);
+            userRepository.save(user);
 
         } else {
-            log.info("User with email {} is not a Techsisters member", email);
-            throw new IllegalArgumentException("User " + email + " is not a Techsisters member");
+            Record userRecord = airtableService.findByEmail(email);
+
+            if (userRecord != null) {
+                log.info("User with email {} is a Techsisters member", email);
+
+                // create user in DB
+                user = new User();
+
+                user = copyAirtableData(user, userRecord);
+                log.info("User data saved/updated in DB: {}", user.getId());
+
+                // generate OTP
+                otp = UserUtil.generate6DigitCode();
+                user.setOtp(otp);
+                userRepository.save(user);
+
+            } else {
+                log.info("User with email {} is not a Techsisters member", email);
+                throw new IllegalArgumentException("User " + email + " is not a Techsisters member");
+            }
         }
 
         return otp;

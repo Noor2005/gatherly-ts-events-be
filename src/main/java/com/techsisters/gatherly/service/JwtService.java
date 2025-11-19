@@ -26,6 +26,10 @@ public class JwtService {
     @Value("${application.security.jwt.secretKey}")
     private String secretKey;
 
+//    @Value("${jwt.expiration:3600000}")
+//    private int jwtExpiration;
+
+
     // 2. Generate a token
     public String generateToken(String username) {
         return generateToken(new HashMap<>(), username);
@@ -33,7 +37,7 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, String username) {
         Instant now = Instant.now();
-        Instant expiration = now.plus(30, ChronoUnit.MINUTES);
+        Instant expiration = now.plus(60, ChronoUnit.MINUTES);
         Date issuedAtDate = Date.from(now);
         Date expirationDate = Date.from(expiration);
 

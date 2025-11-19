@@ -56,24 +56,18 @@ public class AirtableService {
 
     // Validate email against Airtable records
     public Record findByEmail(String email) {
-
         Record user = null;
         ListResponse response = getList();
         if (response != null) {
-
             if (!response.getRecords().isEmpty()) {
-
                 for (Record obj : response.getRecords()) {
                     if (obj.getFields().getEmail() != null
                             && StringUtils.equalsIgnoreCase(obj.getFields().getEmail(), email)) {
                         user = obj;
                     }
-
                 }
             }
-
         }
-
         return user;
     }
 

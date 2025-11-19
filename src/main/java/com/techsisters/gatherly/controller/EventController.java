@@ -8,7 +8,6 @@ import com.techsisters.gatherly.entity.EventRSVP;
 import com.techsisters.gatherly.request.EventRSVPRequest;
 import com.techsisters.gatherly.request.EventRequest;
 import com.techsisters.gatherly.response.AllEventsResponse;
-import com.techsisters.gatherly.response.EventDetailsResponse;
 import com.techsisters.gatherly.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,20 +36,6 @@ public class EventController {
 
     }
 
-    @GetMapping("/all")
-    public AllEventsResponse getAllEvents() {
-        List<EventDTO> events = eventService.getAllEvents();
-        AllEventsResponse response = new AllEventsResponse();
-        if(events != null){
-            response.setEvents(events);
-            response.setMessage("Data returned successfully");
-            response.setSuccess(true);
-        }else{
-            response.setSuccess(false);
-            response.setMessage("No Events found");
-        }
-        return response;
-    }
     @PostMapping("/rsvp")
     public ResponseDTO rsvpToEvent(@Valid @RequestBody EventRSVPRequest rsvpRequest) {
         ResponseDTO response = new ResponseDTO();
@@ -62,20 +47,6 @@ public class EventController {
             response.setSuccess(false);
         }
 
-        return response;
-    }
-
-    @GetMapping("/id")
-    public EventDetailsResponse getEventDetails(@RequestParam Long eventId){
-        EventDetailsResponse response = new EventDetailsResponse();
-        EventDTO dto = eventService.getEventDetails(eventId);
-        if(dto != null){
-            response.setDto(dto);
-            response.setSuccess(true);
-            response.setMessage("Data returned successfully");
-        }else{
-            response.setSuccess(false);
-        }
         return response;
     }
 

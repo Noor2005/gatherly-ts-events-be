@@ -43,7 +43,7 @@ public class EmailService {
 
         sendEmailWithTemplate(to, subject, templateName, model);
 
-        log.info("Succesfully sent OTP email to {}", to);
+        log.info("Successfully sent OTP email to {}", to);
     }
 
     @Async

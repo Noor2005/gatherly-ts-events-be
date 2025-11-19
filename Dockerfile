@@ -1,30 +1,31 @@
 # --- Stage 1: Build ---
-# Use a Maven image with a JDK to build your application
-FROM maven:3.9.0-eclipse-temurin-17-alpine AS build
+# Use a Maven image with a JDK 21 to build your application
+FROM maven:3.9.0-eclipse-temurin-21-alpine AS build
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the pom.xml and source code
+# Copy the Maven project files
 COPY pom.xml .
 COPY src ./src
 
-# Build the JAR file. The -DskipTests is optional but speeds up the build.
+# Build the executable JAR file
+# -DskipTests is often used to speed up the build in the container environment
 RUN mvn clean package -DskipTests
 
 # --- Stage 2: Runtime ---
-# Use a minimal JRE image for the final production image
-FROM eclipse-temurin:17-jre-alpine
+# Use a minimal JRE 21 image for the final production image
+FROM eclipse-temurin:21-jre-alpine
 
 # Set the working directory
 WORKDIR /app
 
 # Copy the generated JAR file from the 'build' stage
-# Adjust 'app-name-0.0.1-SNAPSHOT.jar' to match your actual Maven artifact name
+# The wildcard *.jar ensures we capture the exact artifact name.
 COPY --from=build /app/target/*.jar app.jar
 
-# Spring Boot defaults to port 8080
+# Expose the default Spring Boot port
 EXPOSE 8080
 
-# The command to run the application
+# The command to run the application using the JRE
 ENTRYPOINT ["java", "-jar", "app.jar"]

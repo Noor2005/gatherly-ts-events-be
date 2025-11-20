@@ -1,6 +1,6 @@
 # --- Stage 1: Build ---
-# Using the stable 'maven:3-jdk-21-slim' image
-FROM maven:3.9.7-eclipse-temurin-21-alpine AS build
+# Using a slightly simplified, but still specific, Temurin 21 Maven build image
+FROM maven:3-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
@@ -10,9 +10,10 @@ COPY src ./src
 # Build the executable JAR file
 RUN mvn clean package -DskipTests
 
+
 # --- Stage 2: Runtime ---
-# Using the minimal 'eclipse-temurin:21-jre-alpine' image
-FROM openjdk:21-jre-alpine
+# Using the specific Eclipse Temurin 21 JRE Alpine image
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 

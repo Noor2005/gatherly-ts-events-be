@@ -16,10 +16,10 @@ import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
 
 import jakarta.mail.MessagingException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class EmailService {
@@ -69,13 +69,15 @@ public class EmailService {
         Resend resend = new Resend(resendApiKey);
 
         CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
-                .from("onboarding@resend.dev")
+                .from("techsisters-events@resend.dev")
                 .to(to)
                 .subject(subject)
                 .html(htmlBody)
                 .build();
 
         CreateEmailResponse data = resend.emails().send(sendEmailRequest);
+
+        log.info("Email sent with ID: {}", data.getId());
     }
 
 }

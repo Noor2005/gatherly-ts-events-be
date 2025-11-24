@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.resend.core.exception.ResendException;
+
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +20,7 @@ public class TestEmailService {
     private EmailService emailService;
 
     @Test
-    public void test_sendOtpEmail() throws MessagingException {
+    public void test_sendOtpEmail() throws MessagingException, ResendException {
         emailService.sendOtpEmail("noorsuho@gmail.com", "Noor", "123456");
     }
 

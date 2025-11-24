@@ -3,8 +3,7 @@ package com.techsisters.gatherly.config;
 import java.util.Arrays;
 import java.util.List;
 
-import com.techsisters.gatherly.filter.JwtAuthenticationFilter;
-import com.techsisters.gatherly.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,13 +24,24 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import lombok.AllArgsConstructor;
+import com.techsisters.gatherly.filter.JwtAuthenticationFilter;
+import com.techsisters.gatherly.service.CustomUserDetailsService;
 
-@AllArgsConstructor
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SpringApiSecurityConfig {
+
+    /**
+     * Injects the comma-separated list of allowed CORS origins from
+     * the application properties file (e.g., application.properties).
+     * The default value is provided using the colon (:) operator.
+     */
+    @Value("${app.cors.allowed-origins:http://localhost:3000}")
+    private String allowedOriginsString;
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
@@ -42,7 +52,8 @@ public class SpringApiSecurityConfig {
 
     /**
      * Main security configuration.
-     * Defines which endpoints are public vs protected, and configures JWT filtering.
+     * Defines which endpoints are public vs protected, and configures JWT
+     * filtering.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,7 +84,6 @@ public class SpringApiSecurityConfig {
         return http.build();
     }
 
-
     // ============================================
     // CORS CONFIGURATION
     // ============================================
@@ -82,8 +92,16 @@ public class SpringApiSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow your React app's origin
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        // Convert the injected string into a List<String>
+        // The trim() and filter(s -> !s.isEmpty()) ensure no empty strings are left if
+        // the property is empty or has extra commas.
+        List<String> allowedOrigins = Arrays.stream(allowedOriginsString.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        // 2. Set the origins from the application property
+        configuration.setAllowedOrigins(allowedOrigins);
 
         // Allow all necessary HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -107,7 +125,8 @@ public class SpringApiSecurityConfig {
 
     /**
      * Configures how users are authenticated.
-     * Uses DaoAuthenticationProvider to load users from database via UserDetailsService.
+     * Uses DaoAuthenticationProvider to load users from database via
+     * UserDetailsService.
      */
 
     @Bean
@@ -136,6 +155,5 @@ public class SpringApiSecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 
 }

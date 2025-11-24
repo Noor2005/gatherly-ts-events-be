@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/auth/")
+@RequestMapping("/auth")
 public class AuthApiController {
 
     @Autowired
@@ -32,6 +32,7 @@ public class AuthApiController {
             response.setSuccess(true);
             response.setMessage("A 6-digit OTP has been sent to " + request.getEmail() + ".");
         } catch (Exception e) {
+            log.error("Error while generating OTP: " + e.getMessage());
             response.setSuccess(false);
             response.setMessage("Error while generating OTP: " + e.getMessage());
         }

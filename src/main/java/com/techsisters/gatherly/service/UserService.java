@@ -1,6 +1,8 @@
 package com.techsisters.gatherly.service;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AirtableService airtableService;
     private final EmailService emailService;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
     public LoginResponse authenticateUser(LoginRequest request) {
@@ -38,7 +40,7 @@ public class UserService {
             User user = findByEmail(request.getEmail());
 
             // clear OTP after successful validation
-            user.setOtp(Integer.valueOf(0));
+            user.setOtp(0);
             user.setOtpCreatedDate(null);
             userRepository.save(user);
 
@@ -87,20 +89,20 @@ public class UserService {
     }
 
     /*
-     * Check if user is a registered Techsisters member via Airtable
+     * Check if user is a registered Tech sisters member via Airtable
      * if valid generate 6-digit OTP and send to email
      */
     public Integer generateOTP(String email) throws Exception {
-        log.info("Checking if user with email {} is a Techsisters member", email);
+        log.info("Checking if user with email {} is a Tech-Sisters member", email);
 
-        Integer otp = null;
+        Integer otp;
 
         User user = findByEmail(email);
         if (user == null) {
             Record userRecord = airtableService.findByEmail(email);
 
             if (userRecord != null) {
-                log.info("User with email {} is a Techsisters member", email);
+                log.info("User with email {} is a Tech-Sisters member", email);
 
                 // create user in DB
                 user = new User();
@@ -109,10 +111,9 @@ public class UserService {
                 log.info("User data saved/updated in DB: {}", user.getId());
 
             } else {
-                log.info("User with email {} is not a Techsisters member", email);
-                throw new IllegalArgumentException("User " + email + " is not a Techsisters member");
+                log.info("User with email {} is not a Tech-Sisters member", email);
+                throw new IllegalArgumentException("User " + email + " is not a Tech_Sisters member");
             }
-
         } else {
             log.info("User with email {} already exists in DB", email);
         }
@@ -137,8 +138,23 @@ public class UserService {
         user.setName(record.getFields().getName());
         user.setEmail(record.getFields().getEmail());
         user.setCountry(record.getFields().getCountry());
+        if (isAdminEmail(user.getEmail())) {
+            user.setRole("ADMIN");
+        }else{
+            user.setRole("USER");
+        }
 
         return userRepository.save(user);
+    }
+
+    private boolean isAdminEmail(String email) {
+        // Hardcoded admin emails (or fetch from config/database)
+        List<String> adminEmails = Arrays.asList(
+                "safakhanx4@gmail.com",
+                "noor2005@gmail.com",
+                "admin@techsisters.com"
+        );
+        return adminEmails.contains(email.toLowerCase());
     }
 
 }

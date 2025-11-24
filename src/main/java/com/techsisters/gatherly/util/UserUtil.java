@@ -12,19 +12,25 @@ public class UserUtil {
     // Create a single, reusable instance of SecureRandom
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    public static String ANNONYMOUS = "annonymous";
+    public static final String ANONYMOUS = "anonymous";
 
+    /**
+     * Gets the username (email) of the currently authenticated user.
+     * Used primarily for audit logging.
+     *
+     * @return Email if authenticated, "annonymous" if not
+     */
     public static String getLoginUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            return ANNONYMOUS;
+            return ANONYMOUS;
         } else {
             return auth.getName();
         }
     }
 
-    public static boolean isAnnonymous() {
-        return StringUtils.equals(ANNONYMOUS, getLoginUsername());
+    public static boolean getAnonymous() {
+        return StringUtils.equals(ANONYMOUS, getLoginUsername());
     }
 
     /**
@@ -34,8 +40,7 @@ public class UserUtil {
      */
     public static int generate6DigitCode() {
         // Generate a random integer from 0 to 999,999
-        int number = SECURE_RANDOM.nextInt(1_000_000);
-        return number;
+        return SECURE_RANDOM.nextInt(1_000_000);
     }
 
 }

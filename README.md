@@ -23,7 +23,7 @@ With Gatherly, users can:
 - **Spring Boot (Java)** – Backend APIs  
 - **React.js** – Frontend interface  
 - **PostgreSQL** – Database  
-- **Hibernate / JPA** – ORM layer  
+- **Deployment** – Render
 
 ---
 
@@ -43,6 +43,5 @@ Built with 💕 by **Tech Sisters**
 
 We’re working on:
 - RSVP tracking  
-- Smart reminders and notifications   
+- Smart reminders and notifications  
 - Calendar integration  
-

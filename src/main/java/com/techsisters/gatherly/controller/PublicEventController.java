@@ -53,7 +53,7 @@ public class PublicEventController {
         try {
             com.google.api.services.calendar.model.Event calEvent = googleCalendarService.createEvent(
                     email, eventDTO.getTitle(),
-                    eventDTO.getDescription(), startDateTimeUTC, endDateTimeUTC);
+                    eventDTO.getLongDescription(), startDateTimeUTC, endDateTimeUTC);
 
             response.setSuccess(true);
             response.setMessage(calEvent.getHtmlLink());
@@ -67,7 +67,7 @@ public class PublicEventController {
             log.error("Error in creating google calendar event", e);
             response.setSuccess(false);
             response.setMessage("Error in creating google calendar event: " + e.getMessage());
-        } catch (OAuthTokenNotFoundException e ) {
+        } catch (OAuthTokenNotFoundException e) {
 
             log.error("Token not found, initiating Google OAuth flow", e.getMessage());
             // FAILURE (NO TOKEN): Initiate the Google Authorization flow

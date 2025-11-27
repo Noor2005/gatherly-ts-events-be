@@ -5,10 +5,14 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techsisters.gatherly.dto.EventDTO;
@@ -93,20 +97,19 @@ public class EventController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/my-created")
-    public UserCreatedEventsResponse getUserCreatedEvents(@AuthenticationPrincipal UserDetails userDetails){
+    public UserCreatedEventsResponse getUserCreatedEvents(@AuthenticationPrincipal UserDetails userDetails) {
         UserCreatedEventsResponse response = new UserCreatedEventsResponse();
-        List<EventDTO> createdEvents =  eventService.getAllUserCreatedEvents(userDetails.getUsername());
-        if(createdEvents != null){
+        List<EventDTO> createdEvents = eventService.getAllUserCreatedEvents(userDetails.getUsername());
+        if (createdEvents != null) {
             response.setEvents(createdEvents);
             response.setMessage("Data retrieved successfully");
             response.setSuccess(true);
-        }else{
+        } else {
             response.setSuccess(false);
             response.setMessage("No events found");
         }
         return response;
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
@@ -140,7 +143,6 @@ public class EventController {
 
         return response;
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{eventId}")

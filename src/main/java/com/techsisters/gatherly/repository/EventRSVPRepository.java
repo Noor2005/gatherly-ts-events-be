@@ -18,7 +18,7 @@ public interface EventRSVPRepository extends JpaRepository<EventRSVP, Long> {
 
     List<EventRSVP> findByUserEmailAndRsvpStatus(String userEmail, boolean rsvpStatus);
 
-    //EventRSVP findByEventAndUserEmail(Event event, String userEmail);
+    List<EventRSVP> findByEventAndRsvpStatus(Event event, boolean rsvpStatus);
 
 //    @Query("SELECT e FROM Event e WHERE e.id IN :eventIds")
 //    List<Event> findByIds(@Param("eventIds") List<Long> eventIds);

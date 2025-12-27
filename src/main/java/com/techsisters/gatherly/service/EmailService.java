@@ -58,6 +58,39 @@ public class EmailService {
     }
 
     @Async
+    public void sendEventReminderEmail(
+            String to,
+            String userName,
+            String eventTitle,
+            String eventDescription,
+            String eventDateTime,
+            String eventType,
+            String eventLocation,
+            String eventLink,
+            Integer duration) throws MessagingException, ResendException {
+
+        Map<String, Object> model = Map.of(
+                "userName", userName != null ? userName : "Tech Sister",
+                "eventTitle", eventTitle,
+                "eventDescription", eventDescription != null ? eventDescription : "",
+                "eventDateTime", eventDateTime,
+                "eventType", eventType,
+                "eventLocation", eventLocation != null ? eventLocation : "",
+                "eventLink", eventLink != null ? eventLink : "",
+                "duration", duration != null ? duration : 60
+        );
+
+        String subject = "⏰ Reminder: " + eventTitle + " starts in 30 minutes!";
+        String templateName = "event-reminder-email.html";
+
+        log.info("Sending event reminder email to {} for event: {}", to, eventTitle);
+
+        sendEmailWithTemplate(to, subject, templateName, model);
+
+        log.info("Successfully sent event reminder email to {}", to);
+    }
+
+    @Async
     public void sendEmailWithTemplate(String to, String subject, String templateName, Map<String, Object> templateModel)
             throws MessagingException, ResendException {
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          line-height: 1.6;
+        }
+        .header {
+          color: #0F3363;
+          text-align: center;
+          font-size: 28px;
+          font-weight: bold;
+          margin-bottom: 20px;
+        }
+        .content {
+          margin-top: 20px;
+          color: #555555;
+          font-size: 16px;
+        }
+        table {
+          max-width: 600px;
+          margin: 20px auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .event-box {
+          background-color: #FBF1E8;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+          border: 2px solid #C2D7ED;
+        }
+        .event-title {
+          font-size: 24px;
+          font-weight: bold;
+          color: #0F3363;
+          margin-bottom: 15px;
+        }
+        .event-detail {
+          margin: 10px 0;
+          font-size: 16px;
+          color: #555555;
+        }
+        .event-detail strong {
+          color: #0F3363;
+        }
+        .join-button {
+          display: inline-block;
+          background: #0F3363;
+          color: white;
+          padding: 14px 32px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 20px;
+          box-shadow: 0 4px 12px rgba(15, 51, 99, 0.3);
+        }
+        .footer {
+          font-size: 14px;
+          color: #777777;
+          text-align: center;
+          margin-top: 30px;
+        }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Reminder</title>
+</head>
+<body>
+<table
+        align="center"
+        border="0"
+        cellpadding="0"
+        cellspacing="0"
+        width="100%"
+>
+    <tr>
+        <td style="padding: 0 40px 30px 40px">
+            <p class="header">
+                🌸 Assalamualaikum, <span th:text="${userName}">User</span>!
+            </p>
+
+            <p class="content">
+                Your event is starting in 30 minutes! Don't forget to join us.
+            </p>
+
+            <div class="event-box">
+                <div class="event-title" th:text="${eventTitle}">Event Title</div>
+
+                <div class="event-detail">
+                    <strong>📅 Date & Time:</strong>
+                    <span th:text="${eventDateTime}">Event Date Time</span>
+                </div>
+
+                <div class="event-detail" th:if="${eventType == 'online'}">
+                    <strong>🌐 Type:</strong> Online Event
+                </div>
+
+                <div class="event-detail" th:if="${eventType == 'in-person'}">
+                    <strong>📍 Location:</strong>
+                    <span th:text="${eventLocation}">Event Location</span>
+                </div>
+
+                <div class="event-detail">
+                    <strong>⏱️ Duration:</strong>
+                    <span th:text="${duration}">60</span> minutes
+                </div>
+
+                <div class="event-detail" th:if="${eventDescription}">
+                    <strong>📝 Description:</strong><br/>
+                    <span th:text="${eventDescription}">Event Description</span>
+                </div>
+
+                <div style="text-align: center;"
+                     th:if="${eventType == 'online' and !#strings.isEmpty(eventLink)}">
+                    <a th:href="${eventLink}" class="join-button">
+                        Join Event Now
+                    </a>
+                </div>
+
+            </div>
+
+            <p class="footer">
+                We look forward to seeing you there! <br/>
+                JazakAllah Khair for being part of our community.
+            </p>
+
+            <p class="footer" style="margin-top: 20px; font-size: 12px;">
+                This is an automated reminder for your RSVP'd event.
+            </p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

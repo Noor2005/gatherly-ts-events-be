@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    @Value("${techsisters.admin.emails}")
+    private String adminEmailList;
 
     private final UserRepository userRepository;
     private final AirtableService airtableService;
@@ -53,6 +59,11 @@ public class UserService {
             response.setName(user.getName());
             response.setEmail(userDetails.getUsername());
             response.setCountry(user.getCountry());
+
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            response.setRoles(roles);
 
             log.info("Login successful for user: {}", request.getEmail());
 
@@ -110,8 +121,8 @@ public class UserService {
                 log.info("User data saved/updated in DB: {}", user.getId());
 
             } else {
-                log.info("User with email {} is not a Tech-Sisters member", email);
-                throw new IllegalArgumentException("User " + email + " is not a Tech_Sisters member");
+                log.info("User with email {} is not a Tech Sisters member", email);
+                throw new IllegalArgumentException("User " + email + " is not a Tech Sisters member");
             }
         } else {
             log.info("User with email {} already exists in DB", email);
@@ -152,10 +163,8 @@ public class UserService {
 
     private boolean isAdminEmail(String email) {
         // Hardcoded admin emails (or fetch from config/database)
-        List<String> adminEmails = Arrays.asList(
-                "safakhanx4@gmail.com",
-                "noor2005@gmail.com",
-                "admin@techsisters.com");
+        List<String> adminEmails = Arrays.asList(adminEmailList.split(","));
+
         return adminEmails.contains(email.toLowerCase());
     }
 

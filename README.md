@@ -1,7 +1,7 @@
 # 🌸 Tech Sisters Events Portal
 
 TS Events is a simple and modern event management tool built by us to make organizing golabal events effortless and fun. 
-Whether it’s a small meetup or a large community gathering, Gatherly helps you create, manage, and share events with ease
+It helps you create, manage, and share events with ease
 across time zones and busy schedules — without the usual confusion of event planning. 
 
 ---

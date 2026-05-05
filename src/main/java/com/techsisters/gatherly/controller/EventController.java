@@ -75,8 +75,11 @@ public class EventController extends ValidationExceptionHandler {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/my-rsvps")
-    public AllEventsResponse getUserRSVPs(@AuthenticationPrincipal UserDetails userDetails) {
-        List<EventDTO> events = eventService.getUserRSVPs(userDetails.getUsername());
+    public AllEventsResponse getUserRSVPs(@AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+
+        List<EventDTO> events = eventService.getUserRSVPs(userDetails.getUsername(), page, size);
         AllEventsResponse response = new AllEventsResponse();
         if (events != null) {
             response.setEvents(events);
@@ -98,9 +101,12 @@ public class EventController extends ValidationExceptionHandler {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/my-created")
-    public UserCreatedEventsResponse getUserCreatedEvents(@AuthenticationPrincipal UserDetails userDetails) {
+    public UserCreatedEventsResponse getUserCreatedEvents(@AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+
         UserCreatedEventsResponse response = new UserCreatedEventsResponse();
-        List<EventDTO> createdEvents = eventService.getAllUserCreatedEvents(userDetails.getUsername());
+        List<EventDTO> createdEvents = eventService.getAllUserCreatedEvents(userDetails.getUsername(), page, size);
         if (createdEvents != null) {
             response.setEvents(createdEvents);
             response.setMessage("Data retrieved successfully");

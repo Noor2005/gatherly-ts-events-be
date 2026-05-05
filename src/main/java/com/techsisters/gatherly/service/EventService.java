@@ -75,9 +75,11 @@ public class EventService {
         return eventMapper.getEventDetails(event);
     }
 
-    public List<EventDTO> getUserRSVPs(String userEmail) {
-        List<EventRSVP> eventRSVPs = eventRSVPRepository.findByUserEmailAndRsvpStatus(userEmail, true);
-        List<Long> eventIDs = eventRSVPs.stream().map(e -> e.getEvent().getEventId()).toList();
+    public List<EventDTO> getUserRSVPs(String userEmail, int pageNo, int pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("rsvpDate").descending());
+
+        Page<EventRSVP> eventRSVPs = eventRSVPRepository.findByUserEmailAndRsvpStatus(userEmail, true, paging);
+        List<Long> eventIDs = eventRSVPs.getContent().stream().map(e -> e.getEvent().getEventId()).toList();
 
         List<Event> events = eventRepository.findByEventIdIn(eventIDs);
         return eventMapper.getEvents(events);
@@ -88,9 +90,11 @@ public class EventService {
         return eventMapper.getRSVPs(rsvps);
     }
 
-    public List<EventDTO> getAllUserCreatedEvents(String username) {
-        List<Event> events = eventRepository.findByCreatedBy(username);
-        return eventMapper.getEvents(events);
+    public List<EventDTO> getAllUserCreatedEvents(String username, int pageNo, int pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("eventDateTime").descending());
+
+        Page<Event> events = eventRepository.findByCreatedBy(username, paging);
+        return eventMapper.getEvents(events.getContent());
     }
 
     /**

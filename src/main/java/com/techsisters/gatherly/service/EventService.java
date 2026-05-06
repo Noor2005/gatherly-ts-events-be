@@ -1,5 +1,17 @@
 package com.techsisters.gatherly.service;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.techsisters.gatherly.dto.EventDTO;
 import com.techsisters.gatherly.dto.EventRSVPDTO;
 import com.techsisters.gatherly.entity.Event;
@@ -7,16 +19,11 @@ import com.techsisters.gatherly.entity.EventRSVP;
 import com.techsisters.gatherly.mapper.EventMapper;
 import com.techsisters.gatherly.repository.EventRSVPRepository;
 import com.techsisters.gatherly.repository.EventRepository;
+import com.techsisters.gatherly.repository.EventSpecification;
 import com.techsisters.gatherly.request.EventRSVPRequest;
 import com.techsisters.gatherly.request.EventRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +37,17 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    public Page<EventDTO> getAllEvents(int pageNo, int pageSize) {
+    public Page<EventDTO> getAllEvents(int pageNo, int pageSize, EventDTO.ListType listType, String searchQuery) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("eventDateTime").descending());
-        Page<Event> events = eventRepository.findAll(paging);
-        List<EventDTO> eventDTOs = eventMapper.getEvents(events.getContent());
+
+        Page<Event> events = eventRepository.findAll(EventSpecification.filter(listType, searchQuery), paging);
+
+        List<Event> eventList = events.getContent();
+
+        List<EventDTO> eventDTOs = eventMapper.getEvents(eventList);
         return new PageImpl<>(eventDTOs, paging, events.getTotalElements());
     }
+
     public EventRSVP createRSVP(EventRSVPRequest request) {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
@@ -52,7 +64,8 @@ public class EventService {
         rsvp.setRsvpStatus(request.getRsvp());
         return eventRSVPRepository.save(rsvp);
     }
-    private Event getEventById(Long eventId){
+
+    private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
     }
@@ -62,28 +75,31 @@ public class EventService {
         return eventMapper.getEventDetails(event);
     }
 
+    public List<EventDTO> getUserRSVPs(String userEmail, int pageNo, int pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("rsvpDate").descending());
 
-    public List<EventDTO> getUserRSVPs(String userEmail) {
-        List<EventRSVP> eventRSVPs = eventRSVPRepository.findByUserEmailAndRsvpStatus(userEmail, true);
-        List<Long> eventIDs = eventRSVPs.stream().map(e -> e.getEvent().getEventId()).toList();
+        Page<EventRSVP> eventRSVPs = eventRSVPRepository.findByUserEmailAndRsvpStatus(userEmail, true, paging);
+        List<Long> eventIDs = eventRSVPs.getContent().stream().map(e -> e.getEvent().getEventId()).toList();
 
         List<Event> events = eventRepository.findByEventIdIn(eventIDs);
         return eventMapper.getEvents(events);
     }
 
     public List<EventRSVPDTO> getAllEventsRSVPs() {
-        List<EventRSVP> rsvps =  eventRSVPRepository.findAll();
+        List<EventRSVP> rsvps = eventRSVPRepository.findAll();
         return eventMapper.getRSVPs(rsvps);
     }
 
-    public List<EventDTO> getAllUserCreatedEvents(String username) {
-        List<Event> events = eventRepository.findByCreatedBy(username);
-        return eventMapper.getEvents(events);
+    public List<EventDTO> getAllUserCreatedEvents(String username, int pageNo, int pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("eventDateTime").descending());
+
+        Page<Event> events = eventRepository.findByCreatedBy(username, paging);
+        return eventMapper.getEvents(events.getContent());
     }
 
     /**
      * Check if a user is the owner of an event
-   */
+     */
     public boolean isEventOwner(Long eventId, String userEmail) {
         Event event = getEventById(eventId);
         if (event == null) {
@@ -124,7 +140,8 @@ public class EventService {
         try {
             existingEvent.setEventDateTime(OffsetDateTime.parse(eventRequest.getEventDateTime()));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid datetime format. Use ISO 8601 format (e.g. 2025-11-02T18:00:00+05:30)");
+            throw new IllegalArgumentException(
+                    "Invalid datetime format. Use ISO 8601 format (e.g. 2025-11-02T18:00:00+05:30)");
         }
         if (eventRequest.getTimezone() != null && !eventRequest.getTimezone().isEmpty()) {
             existingEvent.setTimezone(eventRequest.getTimezone());
@@ -135,6 +152,7 @@ public class EventService {
 
     /**
      * Delete an event
+     * 
      * @param eventId Event ID to delete
      */
     public void deleteEvent(Long eventId) {

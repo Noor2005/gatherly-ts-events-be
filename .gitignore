@@ -34,3 +34,9 @@ build/
 
 #application.properties file
 src/main/resources/application.properties
+
+#claude.md
+CLAUDE.md
+
+#notes
+notes.md

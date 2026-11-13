@@ -20,7 +20,7 @@ across time zones and busy schedules — without the usual confusion of event pl
 
 ## 🛠️ Built With
 
-- **Spring Boot (Java)** – Backend APIs  
+- **Spring Boot (Java 25 LTS)** – Backend APIs (Java 25 required to build and run)
 - **React.js** – Frontend interface  
 - **PostgreSQL** – Database  
 - **Deployment** – Render
@@ -43,3 +43,11 @@ We’re working on:
 - RSVP tracking  
 - Smart reminders and notifications  
 - Calendar integration  
+
+## Local OTP email mock
+
+For local development, activate the Spring `local` profile by setting
+`SPRING_PROFILES_ACTIVE=local` in your run configuration. OTP emails are then
+rendered and logged by the local email mock instead of being sent through
+Mailgun; look in the application logs for the OTP. Login continues to validate
+the OTP normally. Do not enable this profile in deployed environments.

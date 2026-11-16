@@ -212,11 +212,18 @@ public class EventService {
         return eventMapper.getEventDetails(event);
     }
 
-    public Page<EventDTO> getUserRSVPs(String userEmail, int pageNo, int pageSize) {
+    public Page<EventDTO> getUserRSVPs(
+            String userEmail, int pageNo, int pageSize, EventDTO.ListType listType) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("rsvpDate").descending());
 
-        Page<EventRSVP> eventRSVPs = eventRSVPRepository.findByUserEmailAndRsvpStatus(userEmail, true, paging);
+        OffsetDateTime now = OffsetDateTime.now();
+        Page<EventRSVP> eventRSVPs = listType == EventDTO.ListType.PAST
+                ? eventRSVPRepository.findPastByUserEmail(userEmail, now, paging)
+                : eventRSVPRepository.findUpcomingByUserEmail(userEmail, now, paging);
         List<Long> eventIDs = eventRSVPs.getContent().stream().map(e -> e.getEvent().getEventId()).toList();
+        if (eventIDs.isEmpty()) {
+            return new PageImpl<>(List.of(), paging, eventRSVPs.getTotalElements());
+        }
 
         List<Event> events = eventRepository.findByEventIdIn(eventIDs);
         List<EventDTO> eventDTOs = eventMapper.getEvents(events);
@@ -229,10 +236,14 @@ public class EventService {
         return eventMapper.getRSVPs(rsvps);
     }
 
-    public Page<EventDTO> getAllUserCreatedEvents(String username, int pageNo, int pageSize) {
+    public Page<EventDTO> getAllUserCreatedEvents(
+            String username, int pageNo, int pageSize, EventDTO.ListType listType) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("eventDateTime").descending());
 
-        Page<Event> events = eventRepository.findByCreatedBy(username, paging);
+        OffsetDateTime now = OffsetDateTime.now();
+        Page<Event> events = listType == EventDTO.ListType.PAST
+                ? eventRepository.findPastByCreatedBy(username, now, paging)
+                : eventRepository.findUpcomingByCreatedBy(username, now, paging);
         List<Event> eventList = events.getContent();
 
         List<EventDTO> eventDTOs = eventMapper.getEvents(eventList);

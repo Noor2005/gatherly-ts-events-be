@@ -132,8 +132,8 @@ public class PublicController {
         return response;
     }
 
-    @GetMapping("/event")
-    public EventDetailsResponse getEventDetails(@RequestParam Long eventId) {
+    @GetMapping("/event/{eventId}")
+    public EventDetailsResponse getEventDetails(@PathVariable Long eventId) {
         EventDetailsResponse response = new EventDetailsResponse();
         EventDTO dto = eventService.getEventDetails(eventId);
         if (dto != null) {
@@ -170,11 +170,11 @@ public class PublicController {
     }
 
     // {id:\\d+} only matches digits, so it never clashes with /mentors/specialties.
-    @GetMapping("/mentors/{id:\\d+}")
-    public MentorProfileResponse getMentorProfile(@PathVariable Long id,
+    @GetMapping("/mentors/{mentorId:\\d+}")
+    public MentorProfileResponse getMentorProfile(@PathVariable Long mentorId,
             @AuthenticationPrincipal UserDetails userDetails) {
         MentorProfileResponse response = new MentorProfileResponse();
-        response.setMentor(mentorService.getMentorProfileDetails(id, userDetails != null));
+        response.setMentor(mentorService.getMentorProfileDetails(mentorId, userDetails != null));
         response.setSuccess(true);
         response.setMessage("Data returned successfully");
         return response;

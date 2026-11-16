@@ -3,6 +3,8 @@ package com.techsisters.gatherly.entity;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
+import org.hibernate.annotations.Formula;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +30,9 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String longDescription;
     private OffsetDateTime eventDateTime;
+    @Formula("CASE WHEN duration IS NULL OR duration = 0 THEN NULL "
+            + "ELSE event_date_time + (duration * INTERVAL '1 minute') END")
+    private OffsetDateTime eventEndDateTime;
     private LocalDateTime createdDate = LocalDateTime.now();
     private String timezone;
     private String eventType;

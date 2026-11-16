@@ -11,6 +11,7 @@ import com.techsisters.gatherly.entity.Event;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -22,19 +23,18 @@ public class EventSpecification {
             @Override
             public Predicate toPredicate(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 Predicate predicate = criteriaBuilder.conjunction();
+                OffsetDateTime now = OffsetDateTime.now();
+                Path<OffsetDateTime> eventEndDateTime = root.get("eventEndDateTime");
 
                 if (StringUtils.containsIgnoreCase(listType.toString(), EventDTO.ListType.UPCOMING.toString())) {
-
-                    predicate = criteriaBuilder.and(predicate,
-                            criteriaBuilder.greaterThanOrEqualTo(root.get("eventDateTime"), OffsetDateTime.now()));
-
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.or(
+                            criteriaBuilder.isNull(eventEndDateTime),
+                            criteriaBuilder.greaterThanOrEqualTo(eventEndDateTime, now)));
                 }
 
                 if (StringUtils.containsIgnoreCase(listType.toString(), EventDTO.ListType.PAST.toString())) {
-
                     predicate = criteriaBuilder.and(predicate,
-                            criteriaBuilder.lessThan(root.get("eventDateTime"), OffsetDateTime.now()));
-
+                            criteriaBuilder.lessThan(eventEndDateTime, now));
                 }
 
                 if (StringUtils.isNotBlank(searchQuery)) {

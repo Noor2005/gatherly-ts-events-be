@@ -81,22 +81,18 @@ public class EventController {
     @GetMapping("/my-rsvps")
     public AllEventsResponse getUserRSVPs(@AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size) {
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(defaultValue = "UPCOMING") EventDTO.ListType listType) {
 
-        Page<EventDTO> eventsPage = eventService.getUserRSVPs(userDetails.getUsername(), page, size);
+        Page<EventDTO> eventsPage = eventService.getUserRSVPs(userDetails.getUsername(), page, size, listType);
         AllEventsResponse response = new AllEventsResponse();
-        if (eventsPage != null && eventsPage.hasContent()) {
-            response.setEvents(eventsPage.getContent());
-            response.setTotalPages(eventsPage.getTotalPages());
-            response.setTotalElements(eventsPage.getTotalElements());
-            response.setCurrentPage(eventsPage.getNumber());
-            response.setPageSize(eventsPage.getSize());
-            response.setMessage("Data returned successfully");
-            response.setSuccess(true);
-        } else {
-            response.setSuccess(false);
-            response.setMessage("No Events found");
-        }
+        response.setEvents(eventsPage.getContent());
+        response.setTotalPages(eventsPage.getTotalPages());
+        response.setTotalElements(eventsPage.getTotalElements());
+        response.setCurrentPage(eventsPage.getNumber());
+        response.setPageSize(eventsPage.getSize());
+        response.setMessage(eventsPage.hasContent() ? "Data returned successfully" : "No Events found");
+        response.setSuccess(true);
         return response;
 
     }
@@ -111,22 +107,19 @@ public class EventController {
     @GetMapping("/my-created")
     public UserCreatedEventsResponse getUserCreatedEvents(@AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size) {
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(defaultValue = "UPCOMING") EventDTO.ListType listType) {
 
         UserCreatedEventsResponse response = new UserCreatedEventsResponse();
-        Page<EventDTO> eventsPage = eventService.getAllUserCreatedEvents(userDetails.getUsername(), page, size);
-        if (eventsPage != null && eventsPage.hasContent()) {
-            response.setEvents(eventsPage.getContent());
-            response.setTotalPages(eventsPage.getTotalPages());
-            response.setTotalElements(eventsPage.getTotalElements());
-            response.setCurrentPage(eventsPage.getNumber());
-            response.setPageSize(eventsPage.getSize());
-            response.setMessage("Data returned successfully");
-            response.setSuccess(true);
-        } else {
-            response.setSuccess(false);
-            response.setMessage("No events found");
-        }
+        Page<EventDTO> eventsPage = eventService.getAllUserCreatedEvents(
+                userDetails.getUsername(), page, size, listType);
+        response.setEvents(eventsPage.getContent());
+        response.setTotalPages(eventsPage.getTotalPages());
+        response.setTotalElements(eventsPage.getTotalElements());
+        response.setCurrentPage(eventsPage.getNumber());
+        response.setPageSize(eventsPage.getSize());
+        response.setMessage(eventsPage.hasContent() ? "Data returned successfully" : "No events found");
+        response.setSuccess(true);
         return response;
     }
 
